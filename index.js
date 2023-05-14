@@ -33,6 +33,12 @@ async function run() {
 
     const database = client.db("cofeeDB");
     const coffeeCollection = database.collection("coffee");
+
+    app.get("/coffee/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.findOne(query);
+    });
     app.get("/coffee", async (req, res) => {
       const cursor = coffeeCollection.find();
       const result = await cursor.toArray();
@@ -40,15 +46,14 @@ async function run() {
     });
     app.post("/coffee", async (req, res) => {
       const coffee = req.body;
-      console.log(coffee);
       const result = await coffeeCollection.insertOne(coffee);
       res.send(result);
     });
 
-    app.delete("coffee/:id", (req, res) => {
+    app.delete("/coffee/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result = coffeeCollection.deleteOne(query);
+      const result = await coffeeCollection.deleteOne(query);
       res.send(result);
     });
 
