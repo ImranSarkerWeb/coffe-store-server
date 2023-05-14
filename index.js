@@ -34,19 +34,39 @@ async function run() {
     const database = client.db("cofeeDB");
     const coffeeCollection = database.collection("coffee");
 
-    app.get("/coffee/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await coffeeCollection.findOne(query);
-    });
     app.get("/coffee", async (req, res) => {
       const cursor = coffeeCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
+    app.get("/coffee/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.findOne(query);
+      res.send(result);
+    });
     app.post("/coffee", async (req, res) => {
       const coffee = req.body;
       const result = await coffeeCollection.insertOne(coffee);
+      res.send(result);
+    });
+    app.put("/coffee/:id", (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedCoffe = req.body;
+      const options = { upsert: true };
+      const coffee = {
+        $set: {
+          name: updatedCoffe.name,
+          quantity: updatedCoffe.quantity,
+          supplier: updatedCoffe.supplier,
+          taste: updatedCoffe.taste,
+          category: updatedCoffe.category,
+          details: updatedCoffe.details,
+          photo: updatedCoffe.photo,
+        },
+      };
+      const result = coffeeCollection.updateOne(filter, coffee, options);
       res.send(result);
     });
 
